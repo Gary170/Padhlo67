@@ -1,9 +1,7 @@
 import { db, auth, signInAnonymously } from “./firebase.js”;
 import {
 collection,
-getDocs,
-query,
-limit
+getDocs
 } from “https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js”;
 
 const subjectButtons = document.querySelectorAll(”#subjects button”);
@@ -40,32 +38,49 @@ return shuffled;
 }
 
 async function startGame(subject) {
+try {
 subjectSelection.classList.add(“hidden”);
 quizArea.classList.remove(“hidden”);
 score = 0;
 currentIndex = 0;
 
+```
 // Fetch ALL questions from the collection
 const qSnap = await getDocs(
-collection(db, “questions”, subject, “items”)
+  collection(db, "questions", subject, "items")
 );
 
-// Get all questions and shuffle them
+// Get all questions
 const allQuestions = qSnap.docs.map((doc) => doc.data());
+
+// Shuffle all questions
 const shuffledQuestions = shuffleArray(allQuestions);
 
 // Take only 10 random questions
 questions = shuffledQuestions.slice(0, 10);
 
-// Also shuffle the options for each question
-questions = questions.map(q => ({
-…q,
-options: shuffleArray(q.options),
-// Update correctIndex based on new shuffled position
-correctIndex: shuffleArray(q.options).indexOf(q.options[q.correctIndex])
-}));
+// For each question, shuffle options and update correctIndex
+questions = questions.map(q => {
+  const correctAnswer = q.options[q.correctIndex]; // Store the correct answer text
+  const shuffledOptions = shuffleArray(q.options); // Shuffle options
+  const newCorrectIndex = shuffledOptions.indexOf(correctAnswer); // Find new position of correct answer
+  
+  return {
+    ...q,
+    options: shuffledOptions,
+    correctIndex: newCorrectIndex
+  };
+});
 
 showQuestion();
+```
+
+} catch (error) {
+console.error(“Error starting game:”, error);
+alert(“Error loading questions. Please try again.”);
+quizArea.classList.add(“hidden”);
+subjectSelection.classList.remove(“hidden”);
+}
 }
 
 function showQuestion() {
@@ -75,13 +90,11 @@ const q = questions[currentIndex];
 questionBox.textContent = `Q${currentIndex + 1}. ${q.question}`;
 optionsBox.innerHTML = “”;
 
-// Shuffle options for this specific question
-const shuffledOptions = shuffleArray(q.options.map((opt, idx) => ({ text: opt, originalIndex: idx })));
-
-shuffledOptions.forEach((opt) => {
+// Display the already shuffled options
+q.options.forEach((opt, i) => {
 const btn = document.createElement(“button”);
-btn.textContent = opt.text;
-btn.onclick = () => checkAnswer(opt.originalIndex, q.correctIndex);
+btn.textContent = opt;
+btn.onclick = () => checkAnswer(i, q.correctIndex);
 optionsBox.appendChild(btn);
 });
 
@@ -103,11 +116,7 @@ buttons[selected].classList.add(“correct”);
 } else {
 buttons[selected].classList.add(“wrong”);
 // Highlight the correct answer
-buttons.forEach((btn, idx) => {
-if (optionsBox.children[idx].textContent === questions[currentIndex].options[correct]) {
-btn.classList.add(“correct”);
-}
-});
+buttons[correct].classList.add(“correct”);
 }
 
 nextBtn.style.display = “block”;
