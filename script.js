@@ -24,20 +24,25 @@ signInAnonymously(auth)
 .catch((err) => console.error(“Auth error”, err));
 
 subjectButtons.forEach((btn) => {
-btn.addEventListener(“click”, () => startGame(btn.dataset.subject));
+btn.addEventListener(“click”, () => {
+console.log(“Button clicked:”, btn.dataset.subject);
+startGame(btn.dataset.subject);
+});
 });
 
-// Fisher-Yates shuffle algorithm
+// Simple shuffle function
 function shuffleArray(array) {
-const shuffled = […array];
-for (let i = shuffled.length - 1; i > 0; i–) {
+const arr = […array];
+for (let i = arr.length - 1; i > 0; i–) {
 const j = Math.floor(Math.random() * (i + 1));
-[shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+[arr[i], arr[j]] = [arr[j], arr[i]];
 }
-return shuffled;
+return arr;
 }
 
 async function startGame(subject) {
+console.log(“Starting game for:”, subject);
+
 try {
 subjectSelection.classList.add(“hidden”);
 quizArea.classList.remove(“hidden”);
@@ -45,56 +50,69 @@ score = 0;
 currentIndex = 0;
 
 ```
+console.log("Fetching questions...");
+
 // Fetch ALL questions from the collection
-const qSnap = await getDocs(
-  collection(db, "questions", subject, "items")
-);
+const qSnap = await getDocs(collection(db, "questions", subject, "items"));
 
-// Get all questions
-const allQuestions = qSnap.docs.map((doc) => doc.data());
+console.log("Questions fetched:", qSnap.docs.length);
 
-// Shuffle all questions
-const shuffledQuestions = shuffleArray(allQuestions);
+if (qSnap.empty) {
+  console.error("No questions found!");
+  alert("No questions found for this subject!");
+  quizArea.classList.add("hidden");
+  subjectSelection.classList.remove("hidden");
+  return;
+}
 
-// Take only 10 random questions
-questions = shuffledQuestions.slice(0, 10);
-
-// For each question, shuffle options and update correctIndex
-questions = questions.map(q => {
-  const correctAnswer = q.options[q.correctIndex]; // Store the correct answer text
-  const shuffledOptions = shuffleArray(q.options); // Shuffle options
-  const newCorrectIndex = shuffledOptions.indexOf(correctAnswer); // Find new position of correct answer
-  
-  return {
-    ...q,
-    options: shuffledOptions,
-    correctIndex: newCorrectIndex
-  };
+// Get all questions and shuffle them
+let allQuestions = [];
+qSnap.docs.forEach(doc => {
+  allQuestions.push(doc.data());
 });
+
+console.log("All questions:", allQuestions.length);
+
+// Shuffle and take 10
+allQuestions = shuffleArray(allQuestions);
+questions = allQuestions.slice(0, Math.min(10, allQuestions.length));
+
+console.log("Selected questions:", questions.length);
 
 showQuestion();
 ```
 
 } catch (error) {
-console.error(“Error starting game:”, error);
-alert(“Error loading questions. Please try again.”);
+console.error(“Error in startGame:”, error);
+alert(“Error loading questions: “ + error.message);
 quizArea.classList.add(“hidden”);
 subjectSelection.classList.remove(“hidden”);
 }
 }
 
 function showQuestion() {
-if (currentIndex >= questions.length) return endGame();
+console.log(“Showing question:”, currentIndex);
+
+if (currentIndex >= questions.length) {
+console.log(“Quiz finished!”);
+return endGame();
+}
 
 const q = questions[currentIndex];
+console.log(“Question data:”, q);
+
 questionBox.textContent = `Q${currentIndex + 1}. ${q.question}`;
 optionsBox.innerHTML = “”;
 
-// Display the already shuffled options
-q.options.forEach((opt, i) => {
+// Shuffle options for this question
+const correctAnswer = q.options[q.correctIndex];
+const shuffledOptions = shuffleArray(q.options);
+const newCorrectIndex = shuffledOptions.indexOf(correctAnswer);
+
+shuffledOptions.forEach((opt, i) => {
 const btn = document.createElement(“button”);
 btn.textContent = opt;
-btn.onclick = () => checkAnswer(i, q.correctIndex);
+btn.onclick = () => checkAnswer(i, newCorrectIndex);
 optionsBox.appendChild(btn);
 });
 
@@ -102,9 +120,10 @@ nextBtn.style.display = “none”;
 }
 
 function checkAnswer(selected, correct) {
+console.log(“Answer selected:”, selected, “Correct:”, correct);
+
 const buttons = optionsBox.querySelectorAll(“button”);
 
-// Disable all buttons after selection
 buttons.forEach(btn => {
 btn.disabled = true;
 btn.style.cursor = “not-allowed”;
@@ -113,27 +132,31 @@ btn.style.cursor = “not-allowed”;
 if (selected === correct) {
 score += 10;
 buttons[selected].classList.add(“correct”);
+console.log(“Correct! Score:”, score);
 } else {
 buttons[selected].classList.add(“wrong”);
-// Highlight the correct answer
 buttons[correct].classList.add(“correct”);
+console.log(“Wrong! Score:”, score);
 }
 
 nextBtn.style.display = “block”;
 }
 
 nextBtn.addEventListener(“click”, () => {
+console.log(“Next button clicked”);
 currentIndex++;
 showQuestion();
 });
 
 function endGame() {
+console.log(“Ending game. Final score:”, score);
 quizArea.classList.add(“hidden”);
 resultArea.classList.remove(“hidden”);
 finalScore.textContent = `${score} / ${questions.length * 10}`;
 }
 
 restartBtn.addEventListener(“click”, () => {
+console.log(“Restart clicked”);
 resultArea.classList.add(“hidden”);
 subjectSelection.classList.remove(“hidden”);
 });
