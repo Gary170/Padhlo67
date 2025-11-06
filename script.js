@@ -53,26 +53,24 @@ async function startGame(subject) {
     console.log("Fetching questions...");
 
     // Fetch questions from Firestore
-    const qSnap = await getDocs(collection(db, "questions", subject.toLowerCase(), "items"));
+    const qSnap = await getDocs(collection(db, "questions", subject, "items"));
+
     console.log("Questions fetched:", qSnap.docs.length);
 
     if (qSnap.empty) {
-      alert("No questions found for this subject!");
+      console.warn("No questions found!");
+      alert(`No questions found for ${subject}!`);
       quizArea.classList.add("hidden");
       subjectSelection.classList.remove("hidden");
       return;
     }
 
-    // Get all questions and shuffle them
+    // Get all questions and shuffle
     let allQuestions = [];
-    qSnap.docs.forEach((doc) => {
-      allQuestions.push(doc.data());
-    });
+    qSnap.forEach((doc) => allQuestions.push(doc.data()));
 
-    allQuestions = shuffleArray(allQuestions);
-    questions = allQuestions.slice(0, Math.min(10, allQuestions.length));
-
-    console.log("Selected questions:", questions.length);
+    questions = shuffleArray(allQuestions).slice(0, 10);
+    console.log("Selected questions:", questions);
 
     showQuestion();
   } catch (error) {
