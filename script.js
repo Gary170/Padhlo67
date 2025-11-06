@@ -53,7 +53,7 @@ async function startGame(subject) {
     console.log("Fetching questions...");
 
     // Fetch questions from Firestore
-    const qSnap = await getDocs(collection(db, "questions", subject));
+    const qSnap = await getDocs(collection(db, "questions", subject.toLowerCase(), "items"));
     console.log("Questions fetched:", qSnap.docs.length);
 
     if (qSnap.empty) {
