@@ -1,10 +1,5 @@
 import { db, auth, signInAnonymously } from “./firebase.js”;
-import {
-collection,
-getDocs,
-doc,
-getDoc
-} from “https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js”;
+import { collection, getDocs } from “https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js”;
 
 const subjectButtons = document.querySelectorAll(”#subjects button”);
 const subjectSelection = document.getElementById(“subject-selection”);
