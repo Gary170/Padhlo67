@@ -3,6 +3,21 @@
   padding: 0;
   box-sizing: border-box;
   }
+  
+#summary-box {
+  margin-top: 20px;
+  text-align: left;
+  border-top: 2px solid #ccc;
+  padding-top: 10px;
+}
+
+.summary-item {
+  margin-bottom: 15px;
+}
+
+.summary-item p {
+  margin: 4px 0;
+}
 
 body {
 font-family: ‘Poppins’, sans-serif;
