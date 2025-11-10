@@ -1,4 +1,4 @@
-import { db, auth, signInAnonymously } from “./firebase.js”;
+import { db, auth, signInAnonymously } from "./firebase.js";
 import {
 collection,
 getDocs,
@@ -9,24 +9,24 @@ query,
 orderBy,
 limit,
 updateDoc
-} from “https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js”;
+} from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
-const subjectButtons = document.querySelectorAll(”#subjects button”);
-const subjectSelection = document.getElementById(“subject-selection”);
-const quizArea = document.getElementById(“quiz-area”);
-const questionBox = document.getElementById(“question-box”);
-const optionsBox = document.getElementById(“options-box”);
-const nextBtn = document.getElementById(“next-btn”);
-const resultArea = document.getElementById(“result-area”);
-const finalScore = document.getElementById(“final-score”);
-const restartBtn = document.getElementById(“restart-btn”);
-const leaderboardSection = document.getElementById(“leaderboard-section”);
-const leaderboardList = document.getElementById(“leaderboard-list”);
-const playerNameDisplay = document.getElementById(“player-name-display”);
-const playerEloDisplay = document.getElementById(“player-elo-display”);
+const subjectButtons = document.querySelectorAll("#subjects button");
+const subjectSelection = document.getElementById("subject-selection");
+const quizArea = document.getElementById("quiz-area");
+const questionBox = document.getElementById("question-box");
+const optionsBox = document.getElementById("options-box");
+const nextBtn = document.getElementById("next-btn");
+const resultArea = document.getElementById("result-area");
+const finalScore = document.getElementById("final-score");
+const restartBtn = document.getElementById("restart-btn");
+const leaderboardSection = document.getElementById("leaderboard-section");
+const leaderboardList = document.getElementById("leaderboard-list");
+const playerNameDisplay = document.getElementById("player-name-display");
+const playerEloDisplay = document.getElementById("player-elo-display");
 
-const summaryBox = document.createElement(“div”);
-summaryBox.id = “summary-box”;
+const summaryBox = document.createElement("div");
+summaryBox.id = "summary-box";
 resultArea.appendChild(summaryBox);
 
 let questions = [];
@@ -41,14 +41,14 @@ let playerElo = 1000; // Starting ELO
 signInAnonymously(auth)
 .then(async (userCredential) => {
 currentUserId = userCredential.user.uid;
-console.log(“Signed in with ID:”, currentUserId);
+console.log("Signed in with ID:", currentUserId);
 await setupPlayer();
 await loadLeaderboard();
 })
-.catch((err) => console.error(“Auth error:”, err));
+.catch((err) => console.error("Auth error:", err));
 
 async function setupPlayer() {
-const playerRef = doc(db, “players”, currentUserId);
+const playerRef = doc(db, "players", currentUserId);
 const playerSnap = await getDoc(playerRef);
 
 if (playerSnap.exists()) {
@@ -56,10 +56,10 @@ if (playerSnap.exists()) {
 const data = playerSnap.data();
 playerName = data.name;
 playerElo = data.elo || 1000;
-console.log(“Welcome back:”, playerName, “ELO:”, playerElo);
+console.log("Welcome back:", playerName, "ELO:", playerElo);
 } else {
 // New player - ask for name
-playerName = prompt(“Welcome to Padhlo67! 🎓\n\nPlease enter your name:”);
+playerName = prompt("Welcome to Padhlo67! 🎓\n\nPlease enter your name:");
 
 ```
 if (!playerName || playerName.trim() === "") {
@@ -89,8 +89,8 @@ playerEloDisplay.textContent = `ELO: ${Math.round(playerElo)}`;
 
 async function loadLeaderboard() {
 try {
-const playersRef = collection(db, “players”);
-const q = query(playersRef, orderBy(“elo”, “desc”), limit(100));
+const playersRef = collection(db, "players");
+const q = query(playersRef, orderBy("elo", "desc"), limit(100));
 const querySnapshot = await getDocs(q);
 
 ```
@@ -126,8 +126,8 @@ querySnapshot.forEach((doc) => {
 ```
 
 } catch (error) {
-console.error(“Error loading leaderboard:”, error);
-leaderboardList.innerHTML = “<p>Error loading leaderboard 😢</p>”;
+console.error("Error loading leaderboard:", error);
+leaderboardList.innerHTML = "<p>Error loading leaderboard 😢</p>";
 }
 }
 
@@ -151,7 +151,7 @@ async function updatePlayerElo(scoreEarned, maxScore) {
 const eloChange = calculateEloChange(scoreEarned, maxScore);
 const newElo = playerElo + eloChange;
 
-const playerRef = doc(db, “players”, currentUserId);
+const playerRef = doc(db, "players", currentUserId);
 
 try {
 const playerSnap = await getDoc(playerRef);
@@ -183,12 +183,12 @@ return eloChange;
 ```
 
 } catch (error) {
-console.error(“Error updating ELO:”, error);
+console.error("Error updating ELO:", error);
 }
 }
 
 subjectButtons.forEach((btn) => {
-btn.addEventListener(“click”, () => {
+btn.addEventListener("click", () => {
 startGame(btn.dataset.subject);
 });
 });
@@ -203,16 +203,16 @@ return arr;
 }
 
 async function startGame(subject) {
-subjectSelection.classList.add(“hidden”);
-leaderboardSection.classList.add(“hidden”);
-quizArea.classList.remove(“hidden”);
-resultArea.classList.add(“hidden”);
+subjectSelection.classList.add("hidden");
+leaderboardSection.classList.add("hidden");
+quizArea.classList.remove("hidden");
+resultArea.classList.add("hidden");
 score = 0;
 currentIndex = 0;
 answersSummary = [];
 
 try {
-const itemsRef = collection(db, “questions”, subject, “items”);
+const itemsRef = collection(db, "questions", subject, "items");
 const qSnap = await getDocs(itemsRef);
 
 ```
@@ -232,10 +232,10 @@ showQuestion();
 ```
 
 } catch (error) {
-alert(“Error loading questions: “ + error.message);
-quizArea.classList.add(“hidden”);
-subjectSelection.classList.remove(“hidden”);
-leaderboardSection.classList.remove(“hidden”);
+alert("Error loading questions: " + error.message);
+quizArea.classList.add("hidden");
+subjectSelection.classList.remove("hidden");
+leaderboardSection.classList.remove("hidden");
 }
 }
 
@@ -246,37 +246,37 @@ return endGame();
 
 const q = questions[currentIndex];
 questionBox.textContent = `Q${currentIndex + 1}. ${q.question}`;
-optionsBox.innerHTML = “”;
+optionsBox.innerHTML = "";
 
 const correctAnswer = q.options[q.correctIndex];
 const shuffledOptions = shuffleArray(q.options);
 const newCorrectIndex = shuffledOptions.indexOf(correctAnswer);
 
 shuffledOptions.forEach((opt, i) => {
-const btn = document.createElement(“button”);
+const btn = document.createElement("button");
 btn.textContent = opt;
 btn.onclick = () => checkAnswer(i, newCorrectIndex, opt, correctAnswer, q.question);
 optionsBox.appendChild(btn);
 });
 
-nextBtn.style.display = “none”;
+nextBtn.style.display = "none";
 }
 
 function checkAnswer(selected, correct, selectedText, correctAnswer, questionText) {
-const buttons = optionsBox.querySelectorAll(“button”);
+const buttons = optionsBox.querySelectorAll("button");
 buttons.forEach((btn) => {
 btn.disabled = true;
-btn.style.cursor = “not-allowed”;
+btn.style.cursor = "not-allowed";
 });
 
 let isCorrect = false;
 if (selected === correct) {
 score += 10;
-buttons[selected].classList.add(“correct”);
+buttons[selected].classList.add("correct");
 isCorrect = true;
 } else {
-buttons[selected].classList.add(“wrong”);
-buttons[correct].classList.add(“correct”);
+buttons[selected].classList.add("wrong");
+buttons[correct].classList.add("correct");
 }
 
 answersSummary.push({
@@ -286,34 +286,34 @@ correctAnswer: correctAnswer,
 correct: isCorrect,
 });
 
-nextBtn.style.display = “block”;
+nextBtn.style.display = "block";
 }
 
-nextBtn.addEventListener(“click”, () => {
+nextBtn.addEventListener("click", () => {
 currentIndex++;
 showQuestion();
 });
 
 async function endGame() {
-quizArea.classList.add(“hidden”);
-resultArea.classList.remove(“hidden”);
+quizArea.classList.add("hidden");
+resultArea.classList.remove("hidden");
 finalScore.textContent = `${score} / ${questions.length * 10}`;
 
 // Update ELO
 await updatePlayerElo(score, questions.length * 10);
 
 // Generate summary
-summaryBox.innerHTML = “<h3>Question Summary</h3>”;
+summaryBox.innerHTML = "<h3>Question Summary</h3>";
 answersSummary.forEach((a, i) => {
-const div = document.createElement(“div”);
-div.classList.add(“summary-item”);
+const div = document.createElement("div");
+div.classList.add("summary-item");
 div.innerHTML = `<p><strong>Q${i + 1}.</strong> ${a.question}</p> <p>${a.correct ? "✅" : "❌"} Your answer: <b>${a.yourAnswer}</b></p> ${a.correct ? "" :`<p>✔ Correct answer: <b>${a.correctAnswer}</b></p>`} <hr> `;
 summaryBox.appendChild(div);
 });
 }
 
-restartBtn.addEventListener(“click”, () => {
-resultArea.classList.add(“hidden”);
-subjectSelection.classList.remove(“hidden”);
-leaderboardSection.classList.remove(“hidden”);
+restartBtn.addEventListener("click", () => {
+resultArea.classList.add("hidden");
+subjectSelection.classList.remove("hidden");
+leaderboardSection.classList.remove("hidden");
 });
