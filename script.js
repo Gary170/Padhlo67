@@ -93,7 +93,7 @@ const playersRef = collection(db, "players");
 const q = query(playersRef, orderBy("elo", "desc"), limit(100));
 const querySnapshot = await getDocs(q);
 
-```
+
 leaderboardList.innerHTML = "";
 
 if (querySnapshot.empty) {
@@ -123,7 +123,7 @@ querySnapshot.forEach((doc) => {
   leaderboardList.appendChild(row);
   rank++;
 });
-```
+
 
 } catch (error) {
 console.error("Error loading leaderboard:", error);
@@ -157,7 +157,7 @@ try {
 const playerSnap = await getDoc(playerRef);
 const currentData = playerSnap.data();
 
-```
+
 await updateDoc(playerRef, {
   elo: newElo,
   gamesPlayed: (currentData.gamesPlayed || 0) + 1,
@@ -180,7 +180,7 @@ resultArea.insertBefore(eloChangeText, summaryBox);
 await loadLeaderboard();
 
 return eloChange;
-```
+
 
 } catch (error) {
 console.error("Error updating ELO:", error);
@@ -215,7 +215,7 @@ try {
 const itemsRef = collection(db, "questions", subject, "items");
 const qSnap = await getDocs(itemsRef);
 
-```
+
 if (qSnap.empty) {
   alert(`No questions found for ${subject}!`);
   quizArea.classList.add("hidden");
@@ -229,7 +229,7 @@ qSnap.forEach((doc) => allQuestions.push(doc.data()));
 
 questions = shuffleArray(allQuestions).slice(0, Math.min(10, allQuestions.length));
 showQuestion();
-```
+
 
 } catch (error) {
 alert("Error loading questions: " + error.message);
