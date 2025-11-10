@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -10,33 +11,50 @@
   <header>
     <h1>Padhlo67</h1>
     <p>Turn your ICSE studies into fun quizzes!</p>
+    <div class="player-info">
+      <span id="player-name-display">Loading...</span>
+      <span id="player-elo-display">ELO: ---</span>
+    </div>
   </header>
 
   <main>
-    <section id="subject-selection">
-      <h2>Select a Subject</h2>
-      <div id="subjects">
-        <button data-subject="Science">Science</button>
-        <button data-subject="Maths">Maths</button>
-        <button data-subject="History">History & Civics</button>
-        <button data-subject="Geography">Geography</button>
-        <button data-subject="English">English</button>
-        <button data-subject="Computer">Computer</button>
-        <button data-subject="French">French</button>
+    <!-- Leaderboard Section -->
+    <section id="leaderboard-section">
+      <h2>🏆 Top 100 Players</h2>
+      <div id="leaderboard-container">
+        <div id="leaderboard-list">
+          <p>Loading leaderboard...</p>
+        </div>
       </div>
     </section>
 
-    <section id="quiz-area" class="hidden">
-      <div id="question-box"></div>
-      <div id="options-box"></div>
-      <button id="next-btn">Next</button>
-    </section>
+```
+<section id="subject-selection">
+  <h2>Select a Subject</h2>
+  <div id="subjects">
+    <button data-subject="Science">Science</button>
+    <button data-subject="Maths">Maths</button>
+    <button data-subject="History">History & Civics</button>
+    <button data-subject="Geography">Geography</button>
+    <button data-subject="English">English</button>
+    <button data-subject="Computer">Computer</button>
+    <button data-subject="French">French</button>
+  </div>
+</section>
 
-    <section id="result-area" class="hidden">
-      <h2>Your Score:</h2>
-      <p id="final-score"></p>
-      <button id="restart-btn">Play Again</button>
-    </section>
+<section id="quiz-area" class="hidden">
+  <div id="question-box"></div>
+  <div id="options-box"></div>
+  <button id="next-btn">Next</button>
+</section>
+
+<section id="result-area" class="hidden">
+  <h2>Your Score:</h2>
+  <p id="final-score"></p>
+  <button id="restart-btn">Play Again</button>
+</section>
+```
+
   </main>
 
   <footer>
@@ -45,5 +63,6 @@
   </footer>
 
   <script type="module" src="script.js"></script>
+
 </body>
 </html>
