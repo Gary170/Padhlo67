@@ -61,7 +61,7 @@ console.log("Welcome back:", playerName, "ELO:", playerElo);
 // New player - ask for name
 playerName = prompt("Welcome to Padhlo67! 🎓\n\nPlease enter your name:");
 
-```
+
 if (!playerName || playerName.trim() === "") {
   playerName = "Player" + Math.floor(Math.random() * 10000);
 }
@@ -78,7 +78,7 @@ await setDoc(playerRef, {
 });
 
 console.log("New player created:", playerName);
-```
+
 
 }
 
