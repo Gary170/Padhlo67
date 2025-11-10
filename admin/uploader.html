@@ -52,7 +52,7 @@
 
   <textarea id="jsonInput" placeholder='[{"question": "...", "options": ["..."], "correctIndex": 1}, ...]'></textarea>
   <br>
-  //button id="uploadBtn">Upload to Firestore/button>
+  <button id="uploadBtn">Upload to Firestore</button>
 
   <div id="log"></div>
 
@@ -78,7 +78,7 @@
 
     const logDiv = document.getElementById("log");
     const uploadBtn = document.getElementById("uploadBtn");
-
+    uploadBtn.disabled = true;
     function log(msg) {
       logDiv.textContent += msg + "\n";
     }
