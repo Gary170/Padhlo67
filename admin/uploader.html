@@ -49,6 +49,14 @@
 
   <h1>Science Question Uploader</h1>
   <p>Paste your <b>questions JSON</b> below and click “Upload to Firestore”.</p>
+  <label for="subjectSelect"><b>Select Subject:</b></label>
+<select id="subjectSelect">
+  <option value="">-- Choose Subject --</option>
+  <option value="Science">Science</option>
+  <option value="Computer">Computer</option>
+  <option value="Mathematics">Mathematics</option>
+  <option value="History">History</option>
+</select>
 
   <textarea id="jsonInput" placeholder='password'></textarea>
   <br>
@@ -57,68 +65,70 @@
   <div id="log"></div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
-    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-    
-    // 🧠 Your Firebase config (same as in firebase.js)
-    const firebaseConfig = {
-      apiKey: "AIzaSyCFX4R2OYeDlGYr1ApA24IhIJAg8G7COIk",
-      authDomain: "earnings-calculator-3f7d4.firebaseapp.com",
-      projectId: "earnings-calculator-3f7d4",
-      storageBucket: "earnings-calculator-3f7d4.firebasestorage.app",
-      messagingSenderId: "234683714234",
-      appId: "1:234683714234:web:9259e1b5fbe9bcbfb19083",
-      measurementId: "G-QS4X1MNVKB"
-    };
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+  import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
 
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-    const auth = getAuth(app);
+  const firebaseConfig = {
+    apiKey: "AIzaSyCFX4R2OYeDlGYr1ApA24IhIJAg8G7COIk",
+    authDomain: "earnings-calculator-3f7d4.firebaseapp.com",
+    projectId: "earnings-calculator-3f7d4",
+    storageBucket: "earnings-calculator-3f7d4.firebasestorage.app",
+    messagingSenderId: "234683714234",
+    appId: "1:234683714234:web:9259e1b5fbe9bcbfb19083",
+    measurementId: "G-QS4X1MNVKB"
+  };
 
-    const logDiv = document.getElementById("log");
-    const uploadBtn = document.getElementById("uploadBtn");
-    //uploadBtn.disabled = true;
-    function log(msg) {
-      logDiv.textContent += msg + "\n";
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+  const logDiv = document.getElementById("log");
+  const uploadBtn = document.getElementById("uploadBtn");
+
+  function log(msg) {
+    logDiv.textContent += msg + "\n";
+    logDiv.scrollTop = logDiv.scrollHeight;
+  }
+
+  async function upload() {
+    const input = document.getElementById("jsonInput").value.trim();
+    const subject = document.getElementById("subjectSelect").value.trim();
+
+    if (!input) return alert("Please paste your questions JSON first.");
+    if (!subject) return alert("Please select a subject.");
+
+    let questions;
+    try {
+      questions = JSON.parse(input);
+    } catch (e) {
+      return alert("Invalid JSON format. Please check your text.");
     }
 
-    async function upload() {
-      const input = document.getElementById("jsonInput").value.trim();
-      if (!input) return alert("Please paste your questions JSON first.");
+    uploadBtn.disabled = true;
+    log(`Signing in anonymously...`);
+    await signInAnonymously(auth);
 
-      let questions;
+    log(`Uploading ${questions.length} questions to '${subject}'...`);
+
+    let count = 0;
+    for (const q of questions) {
       try {
-        questions = JSON.parse(input);
-      } catch (e) {
-        return alert("Invalid password format. Please check your text.");
+        await addDoc(collection(db, "questions", subject, "items"), q);
+        count++;
+        log(`✅ Uploaded: ${q.question.substring(0, 80)}...`);
+      } catch (err) {
+        log(`❌ Error: ${err.message}`);
       }
-
-      uploadBtn.disabled = false;
-      log("Signing in anonymously...");
-
-      await signInAnonymously(auth);
-
-      const subject = "Science";
-      log(`Uploading ${questions.length} Science questions...`);
-
-      let count = 0;
-      for (const q of questions) {
-        try {
-          await addDoc(collection(db, "questions", subject, "items"), q);
-          count++;
-          log(`✅ Uploaded: ${q.question.substring(0, 80)}...`);
-        } catch (err) {
-          log(`❌ Error: ${err.message}`);
-        }
-      }
-
-      log(`\n🎉 Done! Successfully uploaded ${count} questions.`);
-      uploadBtn.disabled = false;
     }
 
-    uploadBtn.addEventListener("click", upload);
-  </script>
+    log(`\n🎉 Done! Successfully uploaded ${count} questions to ${subject}.`);
+    uploadBtn.disabled = false;
+  }
+
+  uploadBtn.addEventListener("click", upload);
+</script>
+
 
 </body>
 </html>
